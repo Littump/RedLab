@@ -30,6 +30,7 @@ pytz==2024.1
 PyYAML==6.0.1
 requests==2.31.0
 requests-oauthlib==2.0.0
+setuptools==70.0.0
 six==1.16.0
 social-auth-app-django==5.4.0
 social-auth-core==4.5.3
