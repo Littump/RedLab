@@ -11,4 +11,18 @@ class UserCustomSerializer(UserSerializer):
 class UserСreateCustomSerializer(UserCreateSerializer):
     class Meta:
         model = models.User
-        exclude = ["password"]
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+        ]
+
+
+class UserIsExistRequest(serializers.Serializer):
+    username = serializers.CharField(max_length=150)
+
+
+class UserIsExistResponse(serializers.Serializer):
+    is_exist = serializers.BooleanField()
