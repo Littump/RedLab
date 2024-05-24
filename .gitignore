@@ -1,5 +1,4 @@
 backend/venv
 backend/static
 *.DS_Store
-backend/db.sqlite3
 __pycache__
