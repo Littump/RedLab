@@ -42,11 +42,13 @@ const DataAnalysis = () => {
   };
 
   if (!data || isPending) return <span className="loading"></span>;
-  const points: TNode[] = data.data.points;
+  let points: TNode[] = data.data.points;
+  console.log(points);
   const count_anomalies = data.data.points.reduce(
     (total, el) => total + (el.is_anomal ? +el.is_anomal : 0),
     0,
   );
+
   return (
     <div className="flex flex-col gap-8 py-8">
       <Typography variant="h2">Диаграмма</Typography>

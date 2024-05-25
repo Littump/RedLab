@@ -18,9 +18,9 @@ const DataList = ({ list }: Props) => {
   list = list.map((el) => ({ ...el, id: 2 }));
   return (
     <div className=" text-center items-center flex flex-col gap-2">
-      {list.map(({ name_y, id }) => (
+      {list.map(({ name_y, id }, index) => (
         <div
-          key={name_y + id}
+          key={name_y + index}
           className="my-link py-4 px-4 w-full hover:bg-dark-bg items-center flex gap-4 justify-center"
         >
           <NavLink to={"/data/" + id} className="flex gap-2 items-center">
