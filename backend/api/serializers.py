@@ -7,7 +7,7 @@ from rest_framework.fields import SerializerMethodField
 class TabelsUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Tabel
-        fields = ['name_y']
+        fields = ['name_y', 'id']
 
 
 class UserCustomSerializer(UserSerializer):
