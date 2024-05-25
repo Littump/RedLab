@@ -12,14 +12,17 @@ const GraphFullScreen = () => {
   const { id } = useParams();
   const { data, isPending } = useGetTable(id ? +id : 1);
   const nodeColor = useCallback((n: TNode) => {
-    return n.is_anomal ? "#CC0000" : "#0000FF";
+    return n.is_anomal ? "#ff006e" : "#3a86ff";
+  }, []);
+  const nodeSize = useCallback((n: TNode) => {
+    return n.is_anomal ? 10 : 5;
   }, []);
   console.log(data);
   if (!id) return;
   const EXP = 1000000;
   if (isPending || !data) return <span className="loading"></span>;
-
-  const nodes = data.data.points.map((el) => ({ ...el, x: el.x / EXP }));
+  let points = data.data.points;
+  const nodes = points.map((el) => ({ ...el, x: el.x / EXP }));
 
   return (
     <div className="h-[100vh]">
@@ -49,6 +52,7 @@ const GraphFullScreen = () => {
           hoveredNodeLabelClassName={"bg-white text-black"}
           className="h-[80vh] bg-black"
           nodeColor={nodeColor}
+          nodeSize={nodeSize}
           nodeLabelAccessor={(n: TNode) => n.y.toString()}
         />
         <CosmographTimeline
