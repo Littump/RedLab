@@ -8,6 +8,7 @@ from drf_yasg.openapi import Parameter
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from django.http import HttpResponse
 from rest_framework import status, permissions
 
 from api import serializers, models
@@ -101,11 +102,17 @@ class TabelViewSet(ModelViewSet):
                          responses={status.HTTP_200_OK: serializers.TabelLiteSerializer})
     def lite(self, request, pk):
         tabel = self.get_object()
-        start = request.query_params.get('start', 0)
-        end = request.query_params.get('end', 999999999999)
-        points = tabel.points.filter(x__gte=start, x__lte=end)
+        start = request.query_params.get('start', None)
+        end = request.query_params.get('end', None)
+        if start and end:
+            points = tabel.points.filter(x__gte=start, x__lte=end)
+        else:
+            points = tabel.points.all()
+
         result_points = []
         count = len(points) // 250
+        if count == 0:
+            count = 1
 
         point_result = {
             'x': 0,
@@ -142,15 +149,45 @@ class TabelViewSet(ModelViewSet):
                          manual_parameters=[
                              Parameter('start', in_='path', type='integer'),
                              Parameter('end', in_='path', type='integer'),
+                             Parameter('limit', in_='path', type='integer'),
+                             Parameter('page', in_='path', type='integer'),
                          ],
                          responses={status.HTTP_200_OK: serializers.TabelLiteSerializer})
     def window(self, request, pk):
         tabel = self.get_object()
-        start = request.query_params.get('start', 0)
-        end = request.query_params.get('end', 999999999999)
-        points = tabel.points.filter(x__gte=start, x__lte=end)
+        start = request.query_params.get('start', None)
+        end = request.query_params.get('end', None)
+        limit = request.query_params.get('limit', None)
+        page = request.query_params.get('page', None)
+        if start and end:
+            points = tabel.points.filter(x__gte=start, x__lte=end)
+        else:
+            points = tabel.points.all()
+
+        if limit and page:
+            points = points[int(page) * int(limit):(int(page) + 1) * int(limit)]
+
         data = {'id': tabel.id, 'name_x': tabel.name_x, 'name_y': tabel.name_y,
                 'points': serializers.PointSerializer(points, many=True).data}
         serializer = serializers.TabelLiteSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'])
+    @swagger_auto_schema(operation_description="Get file",
+                         manual_parameters=[
+                             Parameter('start', in_='path', type='integer'),
+                             Parameter('end', in_='path', type='integer'),
+                         ])
+    def file(self, request, pk):
+        tabel = self.get_object()
+        start = request.query_params.get('start', 0)
+        end = request.query_params.get('end', 999999999999)
+        points = tabel.points.filter(x__gte=start, x__lte=end)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="points.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['time', tabel.name_x, tabel.name_y, 'is_anomal'])
+        for point in points:
+            writer.writerow([point.x, point.x_real, point.y, point.is_anomal])
+        return response
