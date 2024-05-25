@@ -43,7 +43,6 @@ const DataAnalysis = () => {
 
   if (!data || isPending) return <span className="loading"></span>;
   let points: TNode[] = data.data.points;
-  console.log(points);
   const count_anomalies = data.data.points.reduce(
     (total, el) => total + (el.is_anomal ? +el.is_anomal : 0),
     0,

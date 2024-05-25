@@ -2,10 +2,13 @@ import UserInfo from "@/modules/Sidebar/ui/UserInfo.tsx";
 import DataList from "@/modules/Sidebar/ui/DataList.tsx";
 import { useResize } from "@/helpers/useResize.ts";
 import { useGetMe } from "@/modules/Sidebar/api/useGetMe.ts";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
   const width = useResize();
+
   const { data, isPending } = useGetMe();
+  console.log(data);
   if (!data) return;
   const email = data.data.username.split("@")[0];
   const tables = data.data.tables.filter((el) => el.name_y);

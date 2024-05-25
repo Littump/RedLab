@@ -31,6 +31,7 @@ const Login = () => {
       localStorage.setItem("token", data.data.auth_token);
       navigate("/");
     }
+    if (localStorage.getItem("token") != null) navigate("/");
   }, [data]);
 
   const steps = [
