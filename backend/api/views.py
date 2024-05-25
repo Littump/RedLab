@@ -63,6 +63,7 @@ class TabelViewSet(ModelViewSet):
         points = tabel.points.all()
         data = {
             'tabel_id': tabel.id,
+            'name': tabel.name_y,
             'points': [{'x': point.x, 'y': point.y} for point in points],
             'is_ready': False,
         }
@@ -73,6 +74,8 @@ class TabelViewSet(ModelViewSet):
             if data['is_ready']:
                 break
             time.sleep(1)
+
+        redis.delete(tabel.id)
 
         for point in points:
             point.is_anomal = data['points'][point.x]
