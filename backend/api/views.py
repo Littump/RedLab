@@ -12,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from django.http import HttpResponse
 from rest_framework import status, permissions
-from redis import redis
+from redis_server import rds
 
 from api import serializers, models
 
@@ -52,12 +52,15 @@ class TabelViewSet(ModelViewSet):
                 return index
 
     def _get_timestamp(self, value):
-        # value = 1/2/2020 -> timestamp
         if isinstance(value, int):
             return value
         if isinstance(value, float):
             return value
-        return datetime.strptime(value, '%m/%d/%Y').timestamp()
+        if '/' in value:
+            return datetime.strptime(value, '%m/%d/%Y').timestamp()
+        if '-' in value:
+            return datetime.strptime(value, '%Y-%m-%d %H:%M:%S').timestamp()
+        return 0
 
     def _send_to_model(self, tabel):
         points = tabel.points.all()
@@ -67,15 +70,15 @@ class TabelViewSet(ModelViewSet):
             'points': [{'x': point.x, 'y': point.y} for point in points],
             'is_ready': False,
         }
-        redis.set(tabel.id, json.dumps(data))
+        rds.set(tabel.id, json.dumps(data))
 
         while True:
-            data = json.loads(redis.get(tabel.id))
+            data = json.loads(rds.get(tabel.id))
             if data['is_ready']:
                 break
             time.sleep(1)
 
-        redis.delete(tabel.id)
+        rds.delete(tabel.id)
 
         for point in points:
             point.is_anomal = data['points'][point.x]
