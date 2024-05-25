@@ -1,5 +1,7 @@
 import csv
 import io
+import json
+import time
 from datetime import datetime
 
 from djoser.views import UserViewSet
@@ -10,6 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from django.http import HttpResponse
 from rest_framework import status, permissions
+from redis_server import rds
 
 from api import serializers, models
 
@@ -49,12 +52,41 @@ class TabelViewSet(ModelViewSet):
                 return index
 
     def _get_timestamp(self, value):
-        # value = 1/2/2020 -> timestamp
         if isinstance(value, int):
             return value
         if isinstance(value, float):
             return value
-        return datetime.strptime(value, '%m/%d/%Y').timestamp()
+        if '/' in value:
+            return datetime.strptime(value, '%m/%d/%Y').timestamp()
+        if '-' in value:
+            return datetime.strptime(value, '%Y-%m-%d %H:%M:%S').timestamp()
+        return 0
+
+    def _send_to_model(self, tabel):
+        points = tabel.points.all()
+        data = {
+            'tabel_id': tabel.id,
+            'name': tabel.name_y,
+            'points': [{'x': point.x, 'y': point.y} for point in points],
+            'is_ready': False,
+        }
+        rds.set(tabel.id, json.dumps(data))
+
+        while True:
+            data = json.loads(rds.get(tabel.id))
+            if data['is_ready']:
+                break
+            time.sleep(1)
+
+        rds.delete(tabel.id)
+
+        for point in points:
+            point.is_anomal = data['points'][point.x]
+            point.save()
+
+        tabel.is_check = True
+        tabel.save()
+        return tabel
 
     def create(self, request, *args, **kwargs):
         super().create(request, *args, **kwargs)
@@ -88,7 +120,8 @@ class TabelViewSet(ModelViewSet):
                     x_real=row[index_date],
                 )
 
-        # TODO send in redis
+        if False:
+            tabel = self._send_to_model(tabel)
 
         serializer = serializers.TabelSerializer(instance=tabel)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
