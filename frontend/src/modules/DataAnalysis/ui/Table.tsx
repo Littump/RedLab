@@ -1,6 +1,6 @@
 import Typography from "@/ui/Typography.tsx";
-import { TNode } from "@/modules/DataAnalysis/types/graph.ts";
-import { useState } from "react";
+import { ITable, TNode } from "@/modules/DataAnalysis/types/graph.ts";
+import { useEffect, useState } from "react";
 import { useGetTablePaginated } from "@/modules/DataAnalysis/api/useGetTablePaginated.ts";
 import { useParams } from "react-router-dom";
 
@@ -13,10 +13,14 @@ interface Props {
 const Table = ({ name, max }: Props) => {
   const { id } = useParams();
   const [page, setPage] = useState(1);
-  const { data, isPending } = useGetTablePaginated({
+  const [previous, setPrevious] = useState<ITable>();
+  const { data, isPending, isSuccess } = useGetTablePaginated({
     page,
     id: id ? +id : 1,
   });
+  useEffect(() => {
+    if (!isPending && isSuccess) setPrevious(data.data);
+  }, [data, isPending, isSuccess]);
   if (!data && !isPending) return "ошибка";
   return (
     <>
@@ -30,17 +34,27 @@ const Table = ({ name, max }: Props) => {
             </tr>
           </thead>
           <tbody className="text-gray-100">
-            {data &&
-              data.data.points.map((el, id) => {
-                let date = new Date(el.x).toString().split(":")[0];
-                date = date.slice(0, date.length - 2);
-                return (
-                  <tr key={id + el.y.toString()}>
-                    <td className="w-2/3 sm:w-1/2">{date}</td>
-                    <td className="w-1/3 sm:w-1/2">{el.y}</td>
-                  </tr>
-                );
-              })}
+            {data
+              ? data.data.points.map((el, id) => {
+                  let date = new Date(el.x).toString().split(":")[0];
+                  date = date.slice(0, date.length - 2);
+                  return (
+                    <tr key={id + el.y.toString()}>
+                      <td className="w-2/3 sm:w-1/2">{date}</td>
+                      <td className="w-1/3 sm:w-1/2">{el.y}</td>
+                    </tr>
+                  );
+                })
+              : previous?.points.map((el, id) => {
+                  let date = new Date(el.x).toString().split(":")[0];
+                  date = date.slice(0, date.length - 2);
+                  return (
+                    <tr key={id + el.y.toString()}>
+                      <td className="w-2/3 sm:w-1/2">{date}</td>
+                      <td className="w-1/3 sm:w-1/2">{el.y}</td>
+                    </tr>
+                  );
+                })}
           </tbody>
         </table>
         <div className="flex justify-center mt-auto gap-6 items-center text-gray-100">
