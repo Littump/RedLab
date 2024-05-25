@@ -1,19 +1,12 @@
 import axios from "axios";
 import API_URL from "@/config/api.ts";
-import LoginDto from "@/modules/Login/types/login.dto.ts";
+import { AddFileDto } from "@/modules/InputData/types/file.ts";
 
 class inputDataService {
-  async login(body: LoginDto) {
-    return axios.post(`${API_URL}auth/token/login/`, body);
-  }
-  async registration() {
-    return axios.post(`${API_URL}users/`, {
-      password: "13qwerty13",
-      username: "89996665544",
-    });
-  }
-  async getMe() {
-    return axios.get(`${API_URL}users/`, {
+  async addFile(body: AddFileDto) {
+    const form_data = new FormData();
+    form_data.append("file", body.file, body.file.path);
+    return axios.post(`${API_URL}tabels/`, form_data, {
       headers: {
         Authorization: "Token " + localStorage.getItem("token"),
       },

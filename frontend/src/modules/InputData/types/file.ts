@@ -6,3 +6,6 @@ interface IFile {
   file: File;
 }
 export default IFile;
+export interface AddFileDto {
+  file: File;
+}

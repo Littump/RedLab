@@ -10,11 +10,7 @@ import FullGraphPage from "@/pages/FullGraphPage.tsx";
 const router = createBrowserRouter([
   {
     path: "/login",
-    element: (
-      <Layout>
-        <LoginPage />
-      </Layout>
-    ),
+    element: <LoginPage />,
     errorElement: <Error />,
   },
   {
@@ -37,11 +33,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/data/:id/fullscreen",
-    element: (
-      <Layout>
-        <FullGraphPage />
-      </Layout>
-    ),
+    element: <FullGraphPage />,
     errorElement: <Error />,
   },
 ]);

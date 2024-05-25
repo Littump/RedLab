@@ -4,19 +4,14 @@ import LoginDto from "@/modules/Login/types/login.dto.ts";
 
 class loginService {
   async login(body: LoginDto) {
-    return axios.post(`${API_URL}auth/token/login/`, body);
+    return axios.post<ILogin>(`${API_URL}auth/token/login/`, body);
   }
-  async registration() {
-    return axios.post(`${API_URL}users/`, {
-      password: "13qwerty13",
-      username: "89996665544",
-    });
+  async registration(body: LoginDto) {
+    return axios.post(`${API_URL}users/`, body);
   }
-  async getMe() {
-    return axios.get(`${API_URL}users/`, {
-      headers: {
-        Authorization: "Token " + localStorage.getItem("token"),
-      },
+  async isExist(username: string) {
+    return axios.post<IExist>(`${API_URL}users/is_exist/`, {
+      username,
     });
   }
 }

@@ -6,7 +6,6 @@ type Props = {
   children: ReactNode;
   items: string[];
   className?: string | null;
-  placeholder: string;
   onClick: (text: string) => void;
   error?: boolean;
   dontShowTriangle?: boolean;
@@ -19,7 +18,6 @@ function DropdownInput({
   dontShowTriangle,
   error,
   onClick,
-  placeholder,
   ...props
 }: Props) {
   const [openMenu, setOpenMenu] = useState(false);
@@ -35,7 +33,9 @@ function DropdownInput({
         role="button"
         className={`flex ${
           dontShowTriangle ? "justify-center" : "justify-start"
-        } bg-white text-dark-gray btn ${error && "border border-red"}`}
+        } bg-main-bg border-0 text-gray-100 hover:bg-dark-bg text-dark-gray btn ${
+          error && "border border-red"
+        }`}
         {...props}
         onClick={() => setOpenMenu((prev) => !prev)}
       >
@@ -52,19 +52,8 @@ function DropdownInput({
         tabIndex={0}
         className={`${
           openMenu ? "" : "hidden"
-        } absolute top-14 font-medium dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-52`}
+        } absolute top-14 font-medium shadow-xl dropdown-content z-[1] menu p-2  bg-main-bg text-gray-100 rounded-box w-52`}
       >
-        {!dontShowTriangle && (
-          <li
-            className="py-2 text-center hover:bg-base-300 transition cursor-pointer rounded-md"
-            onClick={() => {
-              onClick("");
-              setOpenMenu(false);
-            }}
-          >
-            {placeholder}
-          </li>
-        )}
         {items.map((item: string) => (
           <li
             onClick={() => {
@@ -72,9 +61,7 @@ function DropdownInput({
               setOpenMenu(false);
             }}
             key={item}
-            className={`py-2 ${
-              dontShowTriangle ? "border-b" : "border-t"
-            } text-center border-base-300 hover:bg-base-300 transition cursor-pointer rounded-md`}
+            className={`py-2 rounded-md text-center hover:bg-dark-bg transition cursor-pointer`}
           >
             {item}
           </li>

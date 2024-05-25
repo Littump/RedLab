@@ -14,9 +14,11 @@ function Layout({ children }: Props) {
   }, [navigate, token]);
 
   return (
-    <div className="flex gap-6">
+    <div className="flex gap-6 max-w-[100vw] overflow-x-hidden">
       <Sidebar />
-      <div className="ml-52 pl-6">{children}</div>
+      <div className="lg:ml-52 w-full bg-black p-6 md:py-6 md:px-12 min-h-[100vh]">
+        <div className="w-full h-full">{children}</div>
+      </div>
     </div>
   );
 }

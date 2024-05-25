@@ -1,28 +1,49 @@
-import { IDataItem } from "@/modules/Sidebar/types/data.ts";
 import { NavLink } from "react-router-dom";
+import { useDeleteTable } from "@/modules/Sidebar/api/useDeleteTable.ts";
 
-const DataList = () => {
-  const data: IDataItem[] = [
-    {
-      name: "data1.csv",
-      id: 1,
-    },
-    {
-      name: "data2.csv",
-      id: 2,
-    },
-    {
-      name: "data3.csv",
-      id: 3,
-    },
-  ];
+interface Props {
+  list: { name_y: string; id: number }[];
+}
 
+const DataList = ({ list }: Props) => {
+  const { mutate } = useDeleteTable();
+  if (!list)
+    return (
+      <div className="flex gap-4 flex-col w-full">
+        <div className="skeleton w-44 h-10 mx-4"></div>
+        <div className="skeleton w-44 h-10 mx-4"></div>
+        <div className="skeleton w-44 h-10 mx-4"></div>
+      </div>
+    );
+  list = list.map((el) => ({ ...el, id: 2 }));
   return (
-    <div className="max-h-96 text-center items-center overflow-y-scroll no-scroll flex flex-col gap-4">
-      {data.map(({ name, id }) => (
-        <div className="my-link py-2 px-4 w-full hover:bg-blue-500 items-center flex gap-4 justify-center">
-          <NavLink to={"/data/" + id}>{name}</NavLink>
-          <button>
+    <div className=" text-center items-center flex flex-col gap-2">
+      {list.map(({ name_y, id }) => (
+        <div
+          key={name_y + id}
+          className="my-link py-4 px-4 w-full hover:bg-dark-bg items-center flex gap-4 justify-center"
+        >
+          <NavLink to={"/data/" + id} className="flex gap-2 items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M14.25 9.75 16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"
+              />
+            </svg>
+            {name_y.slice(0, 12)}
+          </NavLink>
+          <button
+            onClick={() => mutate(id)}
+            className="ml-auto hover:text-main-red"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -40,8 +61,25 @@ const DataList = () => {
           </button>
         </div>
       ))}
-      <NavLink to={"/"} className="my-link py-2 px-4 w-full hover:bg-blue-500">
-        добавить
+      <NavLink
+        to={"/"}
+        className="flex gap-2 my-link py-4 px-4 w-full hover:bg-dark-bg items-center"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="size-6"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 9.75v6.75m0 0-3-3m3 3 3-3m-8.25 6a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"
+          />
+        </svg>
+        Добавить
       </NavLink>
     </div>
   );
