@@ -89,3 +89,36 @@ class TabelViewSet(ModelViewSet):
 
         serializer = serializers.TabelSerializer(instance=tabel)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['get'])
+    def lite(self, request, pk):
+        tabel = self.get_object()
+        points = tabel.points.all()
+        result_points = []
+        count = len(points) // 250
+
+        point_result = {
+            'x': 0,
+            'y': 0,
+            'is_anomal': 0,
+            'tabel': tabel.id,
+        }
+        for index in range(len(points)):
+            point_result['x'] += points[index].x
+            point_result['y'] += points[index].y
+            point_result['is_anomal'] = max(point_result['is_anomal'], points[index].is_anomal) if points[index].is_anomal else 0
+            if index % count == 0 or index == len(points) - 1:
+                point_result['x'] /= count
+                point_result['y'] /= count
+                result_points.append(point_result)
+                point_result = {
+                    'x': 0,
+                    'y': 0,
+                    'is_anomal': 0,
+                    'tabel': tabel.id,
+                }
+
+        data = {'id': tabel.id, 'name_x': tabel.name_x, 'name_y': tabel.name_y, 'points': result_points}
+        serializer = serializers.TabelLiteSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
