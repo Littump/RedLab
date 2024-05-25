@@ -102,9 +102,13 @@ class TabelViewSet(ModelViewSet):
                          responses={status.HTTP_200_OK: serializers.TabelLiteSerializer})
     def lite(self, request, pk):
         tabel = self.get_object()
-        start = request.query_params.get('start', 0)
-        end = request.query_params.get('end', 999999999999)
-        points = tabel.points.filter(x__gte=start, x__lte=end)
+        start = request.query_params.get('start', None)
+        end = request.query_params.get('end', None)
+        if start and end:
+            points = tabel.points.filter(x__gte=start, x__lte=end)
+        else:
+            points = tabel.points.all()
+
         result_points = []
         count = len(points) // 250
 
@@ -143,13 +147,24 @@ class TabelViewSet(ModelViewSet):
                          manual_parameters=[
                              Parameter('start', in_='path', type='integer'),
                              Parameter('end', in_='path', type='integer'),
+                             Parameter('limit', in_='path', type='integer'),
+                             Parameter('page', in_='path', type='integer'),
                          ],
                          responses={status.HTTP_200_OK: serializers.TabelLiteSerializer})
     def window(self, request, pk):
         tabel = self.get_object()
-        start = request.query_params.get('start', 0)
-        end = request.query_params.get('end', 999999999999)
-        points = tabel.points.filter(x__gte=start, x__lte=end)
+        start = request.query_params.get('start', None)
+        end = request.query_params.get('end', None)
+        limit = request.query_params.get('limit', None)
+        page = request.query_params.get('page', None)
+        if start and end:
+            points = tabel.points.filter(x__gte=start, x__lte=end)
+        else:
+            points = tabel.points.all()
+
+        if limit and page:
+            points = points[int(page) * int(limit):(int(page) + 1) * int(limit)]
+
         data = {'id': tabel.id, 'name_x': tabel.name_x, 'name_y': tabel.name_y,
                 'points': serializers.PointSerializer(points, many=True).data}
         serializer = serializers.TabelLiteSerializer(data=data)
