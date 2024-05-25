@@ -167,7 +167,7 @@ class TabelViewSet(ModelViewSet):
         start = request.query_params.get('start', 0)
         end = request.query_params.get('end', 999999999999)
         points = tabel.points.filter(x__gte=start, x__lte=end)
-        response = HttpResponse(points, content_type='text/csv')
+        response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="points.csv"'
         writer = csv.writer(response)
         writer.writerow(['time', tabel.name_x, tabel.name_y, 'is_anomal'])
