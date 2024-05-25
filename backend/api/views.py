@@ -4,6 +4,7 @@ from datetime import datetime
 
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg.openapi import Parameter
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
@@ -83,6 +84,7 @@ class TabelViewSet(ModelViewSet):
                     tabel=tabel,
                     x=time,
                     y=value,
+                    x_real=row[index_date],
                 )
 
         # TODO send in redis
@@ -91,9 +93,17 @@ class TabelViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['get'])
+    @swagger_auto_schema(operation_description="Get lite points",
+                         manual_parameters=[
+                             Parameter('start', in_='path', type='integer'),
+                             Parameter('end', in_='path', type='integer'),
+                         ],
+                         responses={status.HTTP_200_OK: serializers.TabelLiteSerializer})
     def lite(self, request, pk):
         tabel = self.get_object()
-        points = tabel.points.all()
+        start = request.query_params.get('start', 0)
+        end = request.query_params.get('end', 999999999999)
+        points = tabel.points.filter(x__gte=start, x__lte=end)
         result_points = []
         count = len(points) // 250
 
@@ -106,7 +116,10 @@ class TabelViewSet(ModelViewSet):
         for index in range(len(points)):
             point_result['x'] += points[index].x
             point_result['y'] += points[index].y
-            point_result['is_anomal'] = max(point_result['is_anomal'], points[index].is_anomal) if points[index].is_anomal else 0
+            point_result['is_anomal'] = (
+                max(point_result['is_anomal'], points[index].is_anomal)
+                if points[index].is_anomal else 0
+            )
             if index % count == 0 or index == len(points) - 1:
                 point_result['x'] /= count
                 point_result['y'] /= count
@@ -118,7 +131,26 @@ class TabelViewSet(ModelViewSet):
                     'tabel': tabel.id,
                 }
 
-        data = {'id': tabel.id, 'name_x': tabel.name_x, 'name_y': tabel.name_y, 'points': result_points}
+        data = {'id': tabel.id, 'name_x': tabel.name_x,
+                'name_y': tabel.name_y, 'points': result_points}
+        serializer = serializers.TabelLiteSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'])
+    @swagger_auto_schema(operation_description="Get points in window",
+                         manual_parameters=[
+                             Parameter('start', in_='path', type='integer'),
+                             Parameter('end', in_='path', type='integer'),
+                         ],
+                         responses={status.HTTP_200_OK: serializers.TabelLiteSerializer})
+    def window(self, request, pk):
+        tabel = self.get_object()
+        start = request.query_params.get('start', 0)
+        end = request.query_params.get('end', 999999999999)
+        points = tabel.points.filter(x__gte=start, x__lte=end)
+        data = {'id': tabel.id, 'name_x': tabel.name_x, 'name_y': tabel.name_y,
+                'points': serializers.PointSerializer(points, many=True).data}
         serializer = serializers.TabelLiteSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

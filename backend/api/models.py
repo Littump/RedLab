@@ -25,5 +25,9 @@ class Point(models.Model):
     )
 
     x = models.FloatField()
+    x_real = models.CharField(max_length=255, blank=True)
     y = models.FloatField()
     is_anomal = models.FloatField(null=True)
+
+    class Meta:
+        ordering = ["x"]
