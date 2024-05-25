@@ -1,5 +1,7 @@
 import csv
 import io
+import json
+import time
 from datetime import datetime
 
 from djoser.views import UserViewSet
@@ -10,6 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from django.http import HttpResponse
 from rest_framework import status, permissions
+from redis import redis
 
 from api import serializers, models
 
@@ -56,6 +59,29 @@ class TabelViewSet(ModelViewSet):
             return value
         return datetime.strptime(value, '%m/%d/%Y').timestamp()
 
+    def _send_to_model(self, tabel):
+        points = tabel.points.all()
+        data = {
+            'tabel_id': tabel.id,
+            'points': [{'x': point.x, 'y': point.y} for point in points],
+            'is_ready': False,
+        }
+        redis.set(tabel.id, json.dumps(data))
+
+        while True:
+            data = json.loads(redis.get(tabel.id))
+            if data['is_ready']:
+                break
+            time.sleep(1)
+
+        for point in points:
+            point.is_anomal = data['points'][point.x]
+            point.save()
+
+        tabel.is_check = True
+        tabel.save()
+        return tabel
+
     def create(self, request, *args, **kwargs):
         super().create(request, *args, **kwargs)
         data_file = request.FILES['file']
@@ -88,7 +114,8 @@ class TabelViewSet(ModelViewSet):
                     x_real=row[index_date],
                 )
 
-        # TODO send in redis
+        if False:
+            tabel = self._send_to_model(tabel)
 
         serializer = serializers.TabelSerializer(instance=tabel)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
