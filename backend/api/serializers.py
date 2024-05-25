@@ -3,10 +3,22 @@ from rest_framework import serializers
 from api import models
 from rest_framework.fields import SerializerMethodField
 
+
+class TabelsUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Tabel
+        fields = ['name_y']
+
+
 class UserCustomSerializer(UserSerializer):
+    tables = SerializerMethodField(read_only=True)
+
     class Meta:
         model = models.User
         exclude = ["password"]
+
+    def get_tables(self, obj):
+        return TabelsUserSerializer(obj.tabels.all(), many=True).data
 
 
 class UserСreateCustomSerializer(UserCreateSerializer):
@@ -33,6 +45,14 @@ class PointSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Point
         fields = "__all__"
+
+
+class TabelLiteSerializer(serializers.ModelSerializer):
+    points = serializers.ListField(child=PointSerializer())
+
+    class Meta:
+        model = models.Tabel
+        exclude = ["user", "is_check"]
 
 
 class TabelSerializer(serializers.ModelSerializer):
