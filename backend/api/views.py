@@ -111,6 +111,8 @@ class TabelViewSet(ModelViewSet):
 
         result_points = []
         count = len(points) // 250
+        if count == 0:
+            count = 1
 
         point_result = {
             'x': 0,
