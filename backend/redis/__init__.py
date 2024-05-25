@@ -20,17 +20,21 @@ REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 # )
 
 redis = redis.StrictRedis(
-    host="c-c9q6j9qrmmj9bc37ia46.rw.mdb.yandexcloud.net",
-    port=6379,
-    password='password',
+    host="c-c9q6f85clvcnuef4n648.rw.mdb.yandexcloud.net",
+    port=6380,
+    password="password",
+    ssl=True,
+    ssl_ca_certs="/Users/yakimov/.redis/YandexInternalRootCA.crt",
 )
 
-record = {
-    "name": "PythonRu",
-    "description": "Redis tutorials",
-    "website": "https://pythonru.com/"
-}
+print(redis.ping())
 
-redis.hset('business', record)
+# record = {
+#     "name": "PythonRu",
+#     "description": "Redis tutorials",
+#     "website": "https://pythonru.com/"
+# }
 
-print(f"business: {redis.hgetall('business')}")
+# redis.hset('business', record)
+
+# print(f"business: {redis.hgetall('business')}")
