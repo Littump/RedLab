@@ -13,7 +13,7 @@ REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 REDIS_SSL = os.getenv("REDIS_SSL")
 REDIS_SSL_CA_CERTS = os.getenv("REDIS_SSL_CA_CERTS")
 
-redis = redis.StrictRedis(
+rds = redis.StrictRedis(
     host=REDIS_HOST,
     port=int(REDIS_PORT),
     password=REDIS_PASSWORD,
