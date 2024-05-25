@@ -1,5 +1,6 @@
 import csv
 import io
+from datetime import datetime
 
 from djoser.views import UserViewSet
 from drf_yasg.utils import swagger_auto_schema
@@ -42,15 +43,25 @@ class TabelViewSet(ModelViewSet):
 
     def _get_date_index(self, row):
         for index in range(len(row)):
-            if row[index] == 'date':
+            if row[index].lower() == 'date':
                 return index
 
+    def _get_timestamp(self, value):
+        # value = 1/2/2020 -> timestamp
+        if isinstance(value, int):
+            return value
+        if isinstance(value, float):
+            return value
+        return datetime.strptime(value, '%m/%d/%Y').timestamp()
+
     def create(self, request, *args, **kwargs):
+        super().create(request, *args, **kwargs)
         data_file = request.FILES['file']
         file_wrapper = io.TextIOWrapper(data_file.file, encoding='utf-8')
         reader = csv.reader(file_wrapper)
-        index_date = self._get_date_index(reader[0])
-        count_columns = len(reader[0])
+        header_row = next(reader) 
+        index_date = self._get_date_index(header_row)
+        count_columns = len(header_row)
 
         for index_column in range(count_columns):
             if index_column == index_date:
@@ -59,12 +70,12 @@ class TabelViewSet(ModelViewSet):
             tabel = models.Tabel.objects.create(
                 user=self.request.user,
                 name_x='time',
-                name_y=reader[0][index_column],
+                name_y=header_row[index_column],
             )
 
-            for row in reader[1:]:
+            for row in reader:
                 value = row[index_column]
-                time = row[index_date]
+                time = self._get_timestamp(row[index_date])
                 if not (value and time):
                     continue
 
@@ -76,6 +87,5 @@ class TabelViewSet(ModelViewSet):
 
         # TODO send in redis
 
-        serializer = serializers.TabelSerializer(tabel)
-        serializer.is_valid(raise_exception=True)
+        serializer = serializers.TabelSerializer(instance=tabel)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

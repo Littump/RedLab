@@ -12,8 +12,8 @@ class Tabel(models.Model):
         on_delete=models.CASCADE,
         related_name="tabels",
     )
-    name_x = models.CharField(max_length=255)
-    name_y = models.CharField(max_length=255)
+    name_x = models.CharField(max_length=255, blank=True)
+    name_y = models.CharField(max_length=255, blank=True)
     is_check = models.BooleanField(default=False)
 
 

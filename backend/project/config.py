@@ -5,5 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-KEY_YANDEX = os.getenv("KEY_YANDEX")
-LOG_GROUP_ID = os.getenv("LOG_GROUP_ID")
+
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = os.getenv("REDIS_PORT")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
