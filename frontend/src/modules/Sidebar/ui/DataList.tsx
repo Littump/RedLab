@@ -15,7 +15,6 @@ const DataList = ({ list }: Props) => {
         <div className="skeleton w-44 h-10 mx-4"></div>
       </div>
     );
-  list = list.map((el) => ({ ...el, id: 2 }));
   return (
     <div className=" text-center items-center flex flex-col gap-2">
       {list.map(({ name_y, id }, index) => (

@@ -25,7 +25,6 @@ class tablesService {
     );
   }
   async getTableByIdLite(body: GetTableDto) {
-    console.log(body);
     if (body.start && body.end)
       return axios.get<ITable>(
         `${API_URL}tabels/${body.id}/lite/?start=${body.start}&end=${body.end}`,
