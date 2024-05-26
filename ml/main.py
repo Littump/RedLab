@@ -14,8 +14,8 @@ def main():
             if data['is_ready']:
                 continue
 
-            tabel_id, points = get_anomaly(data)
-            rds.set(tabel_id, json.dumps(points))
+            table_id, points = get_anomaly(data)
+            rds.set(table_id, json.dumps(points))
 
         time.sleep(1)
 

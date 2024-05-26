@@ -1,2 +1,5 @@
 python-dotenv==1.0.1
 redis==5.0.4
+pandas
+scikit-learn
+statsmodels
