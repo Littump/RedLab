@@ -2,17 +2,16 @@
 ## python3 test.py
 
 import json
-
 from redis_settings import rds
 
 
 points = [(i, i) for i in range(10)]
 
 data = {
-    'tabel_id': '123',
+    'table_id': '123',
     'name': 'metric',
     'points': [{'x': point[0], 'y': point[1]} for point in points],
-    'is_ready': False,
+    'is_ready': 0,
 }
 
 rds.set('metric', json.dumps(data))
