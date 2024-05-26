@@ -17,7 +17,7 @@ const GraphFullScreen = () => {
   const nodeSize = useCallback((n: TNode) => {
     return n.is_anomal ? 10 : 5;
   }, []);
-  console.log(data);
+
   if (!id) return;
   const EXP = 1000000;
   if (isPending || !data) return <span className="loading"></span>;

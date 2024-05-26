@@ -42,7 +42,7 @@ const Chart = ({ type, points }: Props) => {
   return (
     <>
       <div className=" w-full flex flex-col pb-4 gap-2 items-end rounded-xl bg-main-bg px-4 md:px-6">
-        <div className=" w-full">
+        <div className="w-full">
           <ResponsiveChartContainer
             sx={{
               [`.${axisClasses.root}`]: {
