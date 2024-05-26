@@ -2,6 +2,7 @@ import statsmodels.api as sm
 from sklearn.ensemble import IsolationForest
 import pandas as pd
 
+
 def get_score(data: pd.DataFrame) -> pd.DataFrame:
     model = sm.tsa.statespace.SARIMAX(data.values, trend='c', order=(1, 1, 1)).fit()
     pred = model.predict(start=0, end=(len(data.values) - 1))
@@ -11,8 +12,9 @@ def get_score(data: pd.DataFrame) -> pd.DataFrame:
     data.y = labels
     return data
 
+
 def get_anomaly(data: dict) -> (str, dict):
-    table_id = data['table_id']
+    table_id = data['tabel_id']
     metric_name = data['name']
     points = data['points']
     to_predict = pd.DataFrame.from_records(points, index = ['x'])

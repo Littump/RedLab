@@ -14,4 +14,5 @@ data = {
     'is_ready': 0,
 }
 
-rds.set('metric', json.dumps(data))
+keys = rds.keys('tabel-*')
+print(keys)

@@ -50,6 +50,14 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/backend_project:latest
+      
+      - name: Push python ml file docker to docker hub
+        uses: docker/build-push-action@v4
+        with:
+          context: ./ml
+          file: ./ml/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/ml_project:latest
 
   deploy:
     name: Deploy image

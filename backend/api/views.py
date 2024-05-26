@@ -50,6 +50,7 @@ class TabelViewSet(ModelViewSet):
         for index in range(len(row)):
             if row[index].lower() == 'date':
                 return index
+        return 0
 
     def _get_timestamp(self, value):
         if isinstance(value, int):
@@ -70,18 +71,18 @@ class TabelViewSet(ModelViewSet):
             'points': [{'x': point.x, 'y': point.y} for point in points],
             'is_ready': False,
         }
-        rds.set(tabel.id, json.dumps(data))
+        rds.set(f'tabel-{tabel.id}', json.dumps(data))
 
         while True:
-            data = json.loads(rds.get(tabel.id))
+            data = json.loads(rds.get(f'tabel-{tabel.id}'))
             if data['is_ready']:
                 break
             time.sleep(1)
 
-        rds.delete(tabel.id)
+        rds.delete(f'tabel-{tabel.id}')
 
         for point in points:
-            point.is_anomal = data['points'][point.x]
+            point.is_anomal = data['points'].get(int(point.x), 0)
             point.save()
 
         tabel.is_check = True
@@ -120,8 +121,7 @@ class TabelViewSet(ModelViewSet):
                     x_real=row[index_date],
                 )
 
-        if False:
-            tabel = self._send_to_model(tabel)
+        tabel = self._send_to_model(tabel)
 
         serializer = serializers.TabelSerializer(instance=tabel)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

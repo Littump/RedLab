@@ -7,7 +7,7 @@ from model import get_anomaly
 
 def main():
     while True:
-        keys = rds.keys('*')
+        keys = rds.keys('tabel-*')
         for key in keys:
             data_binary = rds.get(key)
             data = json.loads(data_binary)
@@ -15,7 +15,7 @@ def main():
                 continue
 
             table_id, points = get_anomaly(data)
-            rds.set(table_id, json.dumps(points))
+            rds.set(f'tabel-{table_id}', json.dumps(points))
 
         time.sleep(1)
 

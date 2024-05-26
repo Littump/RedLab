@@ -9,7 +9,7 @@ services:
   db:
     image: postgres:13.3-alpine
     restart: always
-    env_file: ../backend/.env
+    env_file: ./.env_b
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:
@@ -20,15 +20,22 @@ services:
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
-    env_file: ../backend/.env
+      - ./YandexInternalRootCA.crt:/app/redis_server/YandexInternalRootCA.crt
+    env_file: ./.env_b
     depends_on:
       - db
+  ml:
+    image: littump/ml_project:latest
+    restart: always
+    volumes:
+      - ./YandexInternalRootCA.crt:/app/YandexInternalRootCA.crt
+    env_file: ./.env_ml
   frontend:
     restart: no
     image: littump/frontend_project:latest
     volumes:
       - ../frontend/:/app/result_build/
-    env_file: ../frontend/.env
+    env_file: ./.env_b
     depends_on:
       - backend
   nginx:
