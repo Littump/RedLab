@@ -21,9 +21,16 @@ services:
       - ../backend/db.sqlite3:/var/lib/sqlite/data/db.sqlite3
       - static_value:/app/static/
       - media_value:/app/media/
+      - ../backend/redis_server/YandexInternalRootCA.crt:/app/redis_server/YandexInternalRootCA.crt
     env_file: ../backend/.env
     depends_on:
       - db
+  ml:
+    build: ../ml/
+    restart: always
+    volumes:
+      - ../ml/YandexInternalRootCA.crt:/app/YandexInternalRootCA.crt
+    env_file: ../ml/.env
   # frontend:
   #   build:
   #     context: ../frontend/
